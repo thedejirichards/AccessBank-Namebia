@@ -52,6 +52,9 @@ function PersonalDetailsStep({ value, onBack, onContinue }: PersonalDetailsStepP
         </button>
       </div>
       <p className="step-intro">Tell us a bit about yourself.</p>
+      <p className="required-note">
+        <span className="required-mark">*</span> indicates a mandatory field
+      </p>
 
       <div className="form-grid">
         <label className="field">

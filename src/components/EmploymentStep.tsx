@@ -48,6 +48,9 @@ function EmploymentStep({ value, onBack, onContinue }: EmploymentStepProps) {
         </button>
       </div>
       <p className="step-intro">Help us understand your financial background.</p>
+      <p className="required-note">
+        <span className="required-mark">*</span> indicates a mandatory field
+      </p>
 
       <div className="form-grid">
         <label className="field">

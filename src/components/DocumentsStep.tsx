@@ -26,6 +26,9 @@ function DocumentsStep({ value, tier, isEmployed, onBack, onContinue }: Document
     <form className="wizard-step" onSubmit={handleSubmit}>
       <h2>Upload your documents</h2>
       <p className="step-intro">Please upload clear copies of the following documents.</p>
+      <p className="required-note">
+        <span className="required-mark">*</span> indicates a mandatory field
+      </p>
 
       <div className="form-grid">
         <label className="field field-wide">

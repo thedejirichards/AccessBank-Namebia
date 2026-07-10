@@ -58,6 +58,9 @@ function AddressStep({ value, onBack, onContinue }: AddressStepProps) {
         </button>
       </div>
       <p className="step-intro">Where can we find you?</p>
+      <p className="required-note">
+        <span className="required-mark">*</span> indicates a mandatory field
+      </p>
 
       <div className="form-grid">
         <label className="field">
