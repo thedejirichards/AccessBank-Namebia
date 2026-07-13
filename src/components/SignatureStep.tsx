@@ -1,4 +1,4 @@
-import { useRef, useState, type PointerEvent } from 'react'
+import { useRef, useState, type ChangeEvent, type PointerEvent } from 'react'
 
 interface SignatureStepProps {
   value: string
@@ -6,10 +6,16 @@ interface SignatureStepProps {
   onContinue: (signatureDataUrl: string) => void
 }
 
+type SignatureMode = 'draw' | 'upload'
+
 function SignatureStep({ value, onBack, onContinue }: SignatureStepProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const isDrawing = useRef(false)
+  const [mode, setMode] = useState<SignatureMode>('draw')
   const [hasSigned, setHasSigned] = useState(Boolean(value))
+  const [uploadDataUrl, setUploadDataUrl] = useState(value)
+  const [uploadFileName, setUploadFileName] = useState('')
+  const [uploadError, setUploadError] = useState('')
 
   const getContext = () => canvasRef.current?.getContext('2d') ?? null
 
@@ -49,39 +55,125 @@ function SignatureStep({ value, onBack, onContinue }: SignatureStepProps) {
     setHasSigned(false)
   }
 
-  const handleNext = () => {
-    const canvas = canvasRef.current
-    if (!canvas || !hasSigned) return
-    onContinue(canvas.toDataURL('image/png'))
+  const handleSelectMode = (nextMode: SignatureMode) => {
+    setMode(nextMode)
   }
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please upload an image file (PNG, JPG, etc).')
+      setUploadDataUrl('')
+      setUploadFileName('')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      setUploadError('')
+      setUploadDataUrl(String(reader.result))
+      setUploadFileName(file.name)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveUpload = () => {
+    setUploadDataUrl('')
+    setUploadFileName('')
+    setUploadError('')
+  }
+
+  const handleNext = () => {
+    if (mode === 'draw') {
+      const canvas = canvasRef.current
+      if (!canvas || !hasSigned) return
+      onContinue(canvas.toDataURL('image/png'))
+    } else {
+      if (!uploadDataUrl) return
+      onContinue(uploadDataUrl)
+    }
+  }
+
+  const canContinue = mode === 'draw' ? hasSigned : Boolean(uploadDataUrl)
 
   return (
     <div className="wizard-step">
       <h2>Electronic signature</h2>
-      <p className="step-intro">Please sign in the block below using your mouse or finger.</p>
+      <p className="step-intro">
+        Sign using your mouse or finger, or upload a photo/scan of your signature.
+      </p>
 
-      <canvas
-        ref={canvasRef}
-        className="signature-pad"
-        width={600}
-        height={200}
-        onPointerDown={startDrawing}
-        onPointerMove={draw}
-        onPointerUp={stopDrawing}
-        onPointerLeave={stopDrawing}
-      />
-
-      <div className="signature-actions">
-        <button type="button" className="link-button" onClick={handleClear}>
-          Clear signature
+      <div className="signature-mode-toggle" role="tablist" aria-label="Signature method">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'draw'}
+          className={`signature-mode-btn ${mode === 'draw' ? 'selected' : ''}`}
+          onClick={() => handleSelectMode('draw')}
+        >
+          Draw signature
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === 'upload'}
+          className={`signature-mode-btn ${mode === 'upload' ? 'selected' : ''}`}
+          onClick={() => handleSelectMode('upload')}
+        >
+          Upload signature
         </button>
       </div>
+
+      {mode === 'draw' ? (
+        <>
+          <canvas
+            ref={canvasRef}
+            className="signature-pad"
+            width={600}
+            height={200}
+            onPointerDown={startDrawing}
+            onPointerMove={draw}
+            onPointerUp={stopDrawing}
+            onPointerLeave={stopDrawing}
+          />
+
+          <div className="signature-actions">
+            <button type="button" className="link-button" onClick={handleClear}>
+              Clear signature
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <label className="field field-wide">
+            <span>Signature image</span>
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+            <span className="field-hint">Upload a clear photo or scan of your signature.</span>
+          </label>
+
+          {uploadError && <p className="field-error">{uploadError}</p>}
+
+          {uploadDataUrl && (
+            <div className="signature-upload-preview">
+              <img src={uploadDataUrl} alt="Uploaded signature preview" />
+              <div className="signature-actions">
+                <span className="field-hint">Selected: {uploadFileName}</span>
+                <button type="button" className="link-button" onClick={handleRemoveUpload}>
+                  Remove
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       <div className="wizard-actions">
         <button type="button" className="btn-secondary" onClick={onBack}>
           Back
         </button>
-        <button type="button" className="btn-primary" disabled={!hasSigned} onClick={handleNext}>
+        <button type="button" className="btn-primary" disabled={!canContinue} onClick={handleNext}>
           Next
         </button>
       </div>

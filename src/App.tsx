@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import StartPage from './components/StartPage'
 import ProgressSteps from './components/ProgressSteps'
+import Breadcrumb from './components/Breadcrumb'
 import AccountTypeStep from './components/AccountTypeStep'
 import PersonalDetailsStep from './components/PersonalDetailsStep'
 import AddressStep from './components/AddressStep'
@@ -64,6 +65,8 @@ function App() {
         className={`content-panel ${showHero || showSideNav ? '' : 'content-panel--full'}`}
       >
         <div className={`panel-inner ${step === 'start' ? 'panel-inner--plain' : ''}`}>
+          {isFormStep && step !== 'account-type' && <Breadcrumb product={product} />}
+
           {step === 'start' && <StartPage onStart={() => setStep('account-type')} />}
 
           {step === 'account-type' && (
