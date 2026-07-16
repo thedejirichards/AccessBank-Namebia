@@ -67,6 +67,7 @@ function App() {
         <div className={`panel-inner ${step === 'start' ? 'panel-inner--plain' : ''}`}>
           {isFormStep && step !== 'account-type' && <Breadcrumb product={product} />}
 
+          <div className="panel-body">
           {step === 'start' && <StartPage onStart={() => setStep('account-type')} />}
 
           {step === 'account-type' && (
@@ -186,6 +187,7 @@ function App() {
               onStartOver={handleStartOver}
             />
           )}
+          </div>
         </div>
 
         <img src={accessMark} className="corner-logo" alt="" aria-hidden="true" />

@@ -61,13 +61,16 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow);
-  padding: 40px;
 }
 
 .panel-inner--plain {
   border: none;
   box-shadow: none;
   background: transparent;
+}
+
+.panel-body {
+  padding: 40px;
 }
 
 @media (max-width: 800px) {
@@ -90,6 +93,9 @@
 
   .panel-inner {
     min-width: 100%;
+  }
+
+  .panel-body {
     padding: 24px;
   }
 
@@ -416,8 +422,20 @@
 /* Breadcrumb trail */
 
 .breadcrumb-trail {
-  margin-bottom: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 12px 40px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  border-radius: 12px 12px 0 0;
   overflow-x: auto;
+}
+
+@media (max-width: 800px) {
+  .breadcrumb-trail {
+    padding: 10px 24px;
+  }
 }
 
 .breadcrumb-trail ol {
